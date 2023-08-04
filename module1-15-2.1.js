@@ -21,6 +21,10 @@ const createTaskForm = document.querySelector('.create-task-block');
 
 const tasksList = document.createElement('div');
 
+//создаю спан для ошибки заранее
+const errorTextContainer = document.createElement('span');
+errorTextContainer.className = 'error-message-block';
+
 tasksList.className = 'tasks-list';
 body.append(tasksList);
 
@@ -32,40 +36,40 @@ const renderTasks = () => {
         const taskItem = document.createElement('div');
         taskItem.dataset.taskId = task.id;
         tasksList.append(taskItem);
-    
+
         const mainContainer = document.createElement('div');
         mainContainer.className = 'task-item__main-container';
         taskItem.append(mainContainer);
-    
+
         const mainContent = document.createElement('div');
         mainContent.className = 'task-item__main-content';
         mainContainer.append(mainContent);
-    
+
         const checkboxForm = document.createElement('form');
         checkboxForm.className = 'checkbox-form';
         mainContent.append(checkboxForm);
-    
+
         const inputCheckbox = document.createElement('input');
         inputCheckbox.className = 'checkbox-form__checkbox';
         inputCheckbox.type = 'checkbox';
         inputCheckbox.setAttribute('id', `task-${task.id}`);
         checkboxForm.append(inputCheckbox);
-    
+
         const label = document.createElement('label');
         label.setAttribute('for', `task-${task.id}`);
         checkboxForm.append(label);
-    
+
         const spanItemText = document.createElement('span');
         spanItemText.className = 'task-item__text';
         spanItemText.textContent = task.text;
         mainContent.append(spanItemText);
-    
+
         const formButton = document.createElement('button');
         formButton.className = 'task-item__delete-button default-button delete-button';
         formButton.dataset.deleteTaskId = task.id;
         formButton.textContent = 'Удалить';
         mainContainer.append(formButton);
-    });    
+    });
 };
 
 renderTasks();
@@ -75,18 +79,32 @@ const makeNewTask = createTaskForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const newTask = event.target.elements.taskName.value.trim();
 
-    if(newTask) {
-        const newId = String(Date.now());
-        const newTaskObject = {
-            id: newId,
-            completed: false,
-            text: newTask,
-        };
-        
-        tasks.push(newTaskObject);
-        
-        renderTasks();
-        
-        event.target.elements.taskName.value = '';
+    if (!newTask) {
+        showError('Название задачи не должно быть пустым');
+        return;
     }
+
+    const duplicateTask = tasks.find(task => task.text.toLowerCase() === newTask.toLowerCase());
+    if (duplicateTask) {
+        showError('Задача с таким названием уже существует.');
+        return;
+    }
+
+    const newId = String(Date.now());
+    const newTaskObject = {
+        id: newId,
+        completed: false,
+        text: newTask,
+    };
+
+    tasks.push(newTaskObject);
+
+    renderTasks();
+
+    event.target.elements.taskName.value = '';
 });
+
+function showError(message) {
+    errorTextContainer.textContent = message;
+    createTaskForm.prepend(errorTextContainer);
+}
