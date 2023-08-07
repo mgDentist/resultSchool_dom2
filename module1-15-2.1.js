@@ -15,11 +15,14 @@ let tasks = [
         text: 'Выполнить ДЗ после урока',
     },
 ];
+//переменная для переключения темы
+let isDarkTheme = false;
 
 const body = document.querySelector('body');
 const createTaskForm = document.querySelector('.create-task-block');
 
 const tasksList = document.createElement('div');
+
 //создаю спан для ошибки заранее
 const errorTextContainer = document.createElement('span');
 errorTextContainer.className = 'error-message-block';
@@ -146,20 +149,53 @@ function closeOverlay() {
 tasksList.addEventListener('click', (event) => {
     const button = event.target.closest('.task-item__delete-button');
 
-    if(button) {
+    if (button) {
         const taskIdToDelete = button.dataset.deleteTaskId;
         closeOverlay();
         confirmButton.dataset.taskId = taskIdToDelete;
     }
 });
 
+//нажатие на отмена
 cancelButton.addEventListener('click', () => {
     closeOverlay();
 });
 
+//нажатие на подвтвердить
 confirmButton.addEventListener('click', (event) => {
     const taskIdToDelete = event.target.closest('.delete-modal__confirm-button').dataset.taskId;
     tasks = tasks.filter(task => task.id !== taskIdToDelete);
     renderTasks();
     closeOverlay();
+});
+
+//переключение темной и светлой темы по табу
+document.addEventListener('keydown', (event) => {
+    const taskItem = body.querySelectorAll('.task-item__main-container');
+    const allButtons = body.querySelectorAll('button');
+    if (event.key === 'Tab') {
+        if (isDarkTheme) {
+            body.style.background = '#24292e';
+
+            taskItem.forEach(element => {
+                element.style.color = '#ffffff';
+            });
+
+            allButtons.forEach(element => {
+                element.style.border = '1px solid #ffffff';
+            });
+        } else {
+            body.style.background = 'initial';
+
+            taskItem.forEach(element => {
+                element.style.color = 'initial';
+            });
+
+            allButtons.forEach(element => {
+                element.style.border = 'none';
+            });
+        }
+
+        isDarkTheme = !isDarkTheme;
+    }
 });
